@@ -15,6 +15,8 @@ IMPLEMENT_DYNAMIC(CDlgCutNSearch, CDialog)
 CDlgCutNSearch::CDlgCutNSearch(CWnd* pParent /*=NULL*/)
 	: CDialog(CDlgCutNSearch::IDD, pParent)
 	, m_editTh(0.0f)
+	, m_editKeyword(_T(""))
+	, m_checkKeyword(FALSE)
 {
 	m_pView = NULL;
 }
@@ -32,6 +34,8 @@ void CDlgCutNSearch::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SLIDER1, m_sliderCtrl);
 	DDX_Text(pDX, IDC_EDIT1, m_editTh);
 	DDV_MinMaxFloat(pDX, m_editTh, 0, 1.0);
+	DDX_Text(pDX, IDC_EDIT_KEYWORD, m_editKeyword);
+	DDX_Check(pDX, IDC_CHECK_KEYWORD, m_checkKeyword);
 }
 
 
@@ -42,6 +46,8 @@ BEGIN_MESSAGE_MAP(CDlgCutNSearch, CDialog)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER1, &CDlgCutNSearch::OnNMReleasedcaptureSlider1)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER1, &CDlgCutNSearch::OnNMCustomdrawSlider1)
 	ON_BN_CLICKED(IDC_BUTTON_CLEAR_RESULT, &CDlgCutNSearch::OnBnClickedButtonClearResult)
+	ON_BN_CLICKED(IDC_BUTTON_KEYWORD_SEARCH, &CDlgCutNSearch::OnBnClickedButtonKeywordSearch)
+	ON_BN_CLICKED(IDC_CHECK_KEYWORD, &CDlgCutNSearch::OnBnClickedCheckKeyword)
 END_MESSAGE_MAP()
 
 
@@ -135,8 +141,15 @@ void CDlgCutNSearch::SetSNImage(CString strPath)
 {
 	unsigned short w = 0, h = 0;
 	if (m_pView->LoadSNImage(strPath, w, h) == true){
+
+		if (w < 512)
+			w = 512;
+		if (h < 512)
+			h = 512;
+
 		MoveWindow(0, 0, w + 16, h + 80);
 		m_pView->MoveWindow(0, 40, w, h);
+		m_pView->FitImgToWnd(w, h);
 	}
 	m_pView->Render();
 }
@@ -177,4 +190,24 @@ void CDlgCutNSearch::OnBnClickedButtonClearResult()
 {
 	// TODO: Add your control notification handler code here
 	pView->ClearMatchingResult();
+}
+
+
+void CDlgCutNSearch::OnBnClickedButtonKeywordSearch()
+{
+	// TODO: Add your control notification handler code here
+	UpdateData(TRUE);
+	m_pView->KeywordSearch(m_editKeyword);
+
+
+
+
+	
+}
+
+
+void CDlgCutNSearch::OnBnClickedCheckKeyword()
+{
+	// TODO: Add your control notification handler code here
+
 }

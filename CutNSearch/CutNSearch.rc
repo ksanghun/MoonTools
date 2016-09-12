@@ -487,6 +487,47 @@ END
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
 #pragma code_page(1252)
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG_CNS DIALOGEX 0, 0, 351, 292
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_ACCEPTFILES
+CAPTION "Cut & Search"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Search",IDC_BUTTON1,7,2,30,21
+    CONTROL         "",IDC_SLIDER1,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,72,8,120,15
+    LTEXT           "Threshold",IDC_STATIC,39,2,32,8
+    EDITTEXT        IDC_EDIT1,40,10,28,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Clear All Result",IDC_BUTTON_CLEAR_RESULT,189,2,34,20,BS_MULTILINE
+    EDITTEXT        IDC_EDIT_KEYWORD,244,10,37,14,ES_AUTOHSCROLL
+    CONTROL         "Keyword Search",IDC_CHECK_KEYWORD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,244,0,68,10
+    PUSHBUTTON      "Find",IDC_BUTTON_KEYWORD_SEARCH,286,9,22,16
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DIALOG_CNS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 344
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 285
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -526,44 +567,6 @@ BEGIN
     "\0"
 END
 
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_DIALOG_CNS DIALOGEX 0, 0, 351, 292
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
-EXSTYLE WS_EX_ACCEPTFILES
-CAPTION "Cut & Search"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    PUSHBUTTON      "Search",IDC_BUTTON1,7,0,50,21
-    CONTROL         "",IDC_SLIDER1,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,102,6,120,15
-    LTEXT           "Threshold",IDC_STATIC,69,0,32,8
-    EDITTEXT        IDC_EDIT1,70,8,28,12,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "Clear All Result",IDC_BUTTON_CLEAR_RESULT,228,0,53,20
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_DIALOG_CNS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 344
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 285
-    END
-END
 #endif    // APSTUDIO_INVOKED
 
 

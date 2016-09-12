@@ -39,13 +39,13 @@ class CViewTree;
 		void AddSNImage(CString str);
 		void SetTreeDragItem(CImageList* pImage, HTREEITEM hItem, CViewTree* pCtrl);
 		void RenderImageView();
-		void DoCNSearch(IplImage *ptemp);
+		void DoCNSearch(IplImage *ptemp, bool IsKeyword=false);
 		void SetThreshold(int _value);
 		
 		void ShowCNSDlg(int _th);
 		void SetDlgImagePath(CString str);
 		void ClearMatchingResult();
-
+		IplImage* ExtractTempleteFromResult();
 	protected:
 
 		// Implementation

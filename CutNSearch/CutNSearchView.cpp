@@ -190,10 +190,10 @@ void CCutNSearchView::RenderImageView()
 }
 
 
-void CCutNSearchView::DoCNSearch(IplImage *ptemp)
+void CCutNSearchView::DoCNSearch(IplImage *ptemp, bool IsKeyword)
 {
 	if (m_pImageView){
-		m_pImageView->StartCNSearch(ptemp);
+		m_pImageView->StartCNSearch(ptemp, IsKeyword);
 	}
 
 }
@@ -205,6 +205,13 @@ void CCutNSearchView::SetThreshold(int _value)
 	}
 }
 
+IplImage* CCutNSearchView::ExtractTempleteFromResult()
+{
+	if (m_pImageView){
+		return m_pImageView->ExtractAverTempleteFromResult();
+	}
+	return NULL;
+}
 
 
 

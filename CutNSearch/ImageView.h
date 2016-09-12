@@ -40,11 +40,12 @@ public:
 	void PrepareRender();
 	void SetIconMode(bool _mode) { m_bIconMode = _mode; };
 	void SetRenderMode(_RENDERMODE mode);
-	void StartCNSearch(IplImage *ptemp);
+	void StartCNSearch(IplImage *ptemp, bool bIsKeyword=false);
 	void SetThreshold(int value);
 	void ClearMatchingResult();
 
 	void ReleaseImageData();
+	IplImage* ExtractAverTempleteFromResult();
 private:
 
 	CPoint m_mousedown;
@@ -53,6 +54,10 @@ private:
 	float m_fMoveSpeed;
 
 	IplImage *m_cutImg;
+	IplImage *m_pTemplete;
+	bool m_bIsTemplateCreated;
+	bool m_bKeyWordSearch;
+
 
 
 	POINT3D m_lookAt;
@@ -106,6 +111,8 @@ private:
 	CSNImage* GetSNImageByIndex(unsigned int idx);
 	void GenerateThumbnail();
 	void ProcCutNSearch();
+	void ProcCutNSearchBinary();
+	
 
 
 

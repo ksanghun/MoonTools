@@ -39,4 +39,8 @@ public:
 	afx_msg void OnNMCustomdrawSlider1(NMHDR *pNMHDR, LRESULT *pResult);
 	float m_editTh;
 	afx_msg void OnBnClickedButtonClearResult();
+	CString m_editKeyword;
+	BOOL m_checkKeyword;
+	afx_msg void OnBnClickedButtonKeywordSearch();
+	afx_msg void OnBnClickedCheckKeyword();
 };

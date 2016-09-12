@@ -48,6 +48,7 @@ public:
 	void gl_PopOrtho();
 
 	void gl_DrawText(POINT3D pos, CString strText, LOGFONT font, short align, BITMAPINFO* pBmp, CDC* pDC);	
+	GLuint gl_GetTextTexture(CString str, LOGFONT font, BITMAPINFO* pBmp, CDC* pDC);
 
 	HPALETTE gl_GetPalette(HDC inhDC);
 	HRESULT gl_GetBitFont(CDC *cDCPtr, LOGFONT *LFont, CString strContent, BITMAP *bitmap, BITMAPINFO *m_pBmpInfo);

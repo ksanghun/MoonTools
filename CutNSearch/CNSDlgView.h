@@ -20,6 +20,9 @@ public:
 	void MouseWheel(short zDelta);
 	bool LoadSNImage(CString strPath, unsigned short &_width, unsigned short &_height);
 	void DoCNSearch();
+	void FitImgToWnd(int cx, int cy);
+	void KeywordSearch(CString str);
+	GLuint MakeTextTexture(CString str);
 
 private:
 	float m_left, m_right, m_bottom, m_top;
@@ -29,12 +32,16 @@ private:
 	bool	m_bCNSReady;
 
 	LOGFONT		m_LogFont;
+	LOGFONT		m_LogFont64;
 	BITMAPINFO* m_pBmpInfo;
 
 	POINT3D m_vScrCenter;
 	float m_fScreenScale;
 	CSNImage* m_pSrcImage;
 	IplImage *m_pCutImg;
+
+	CSNImage* m_pKeyImg;
+
 
 	CString m_strMousePos;
 	POINT3D m_mousePos;

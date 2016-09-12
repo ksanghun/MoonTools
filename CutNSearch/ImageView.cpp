@@ -47,8 +47,10 @@ CImageView::CImageView()
 	m_addCnt = 0;
 	m_searchCnt = 0;
 	m_cutImg = NULL;
-
+	m_pTemplete = NULL;
 	m_Threshold = 0.75f;
+	m_bIsTemplateCreated = false;
+	m_bKeyWordSearch = false;
 }
 
 
@@ -778,7 +780,8 @@ void CImageView::OnTimer(UINT_PTR nIDEvent)
 	}
 
 	if (nIDEvent == _SEARCHIMG){
-		ProcCutNSearch();
+		ProcCutNSearch();		
+	//	ProcCutNSearchBinary();
 
 	}
 	COGLWnd::OnTimer(nIDEvent);
@@ -802,20 +805,23 @@ void CImageView::ProcCutNSearch()
 		USES_CONVERSION;
 		char* sz = T2A(pImg->GetPath());
 		//=================================================================================================================
-		IplImage *dstImg = cvLoadImage(sz);
-		IplImage *gray = cvCreateImage(cvSize(dstImg->width, dstImg->height), 8, 1);
-		if (dstImg->nChannels == 3)
-			cvCvtColor(dstImg, gray, CV_RGB2GRAY);//Change from RGB to GrayScale
-		else
-			cvCopy(dstImg, gray);
+		IplImage *gray = cvLoadImage(sz, CV_LOAD_IMAGE_GRAYSCALE);
+	//	cvShowImage("gray", gray);
 
-		IplImage *result_img = cvCreateImage(cvSize(dstImg->width - m_cutImg->width + 1, dstImg->height - m_cutImg->height + 1),
+		//IplImage* im_bw = cvCreateImage(cvGetSize(gray), IPL_DEPTH_8U, 1);
+		//cvThreshold(gray, im_bw, 128, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+		//cvShowImage("im_bw", im_bw);
+
+	//	IplImage *gray = cvCreateImage(cvSize(dstImg->width, dstImg->height), 8, 1);
+		//if (dstImg->nChannels == 3)
+		//	cvCvtColor(dstImg, gray, CV_RGB2GRAY);//Change from RGB to GrayScale
+		//else
+		//	cvCopy(dstImg, gray);
+
+		IplImage *result_img = cvCreateImage(cvSize(gray->width - m_cutImg->width + 1, gray->height - m_cutImg->height + 1),
 			IPL_DEPTH_32F, 1);
 
-		
-
 		cvMatchTemplate(gray, m_cutImg, result_img, CV_TM_CCOEFF_NORMED);
-
 		cvShowImage("percentage map", result_img);
 
 		float* d = (float*)result_img->imageData;
@@ -829,7 +835,6 @@ void CImageView::ProcCutNSearch()
 					left_top.x = x + m_cutImg->width*0.5f;
 					left_top.y = y + m_cutImg->height*0.5f;
 					left_top.z = fD;
-
 
 					pImg->AddMatchedPoint(left_top, search_size);
 
@@ -862,7 +867,7 @@ void CImageView::ProcCutNSearch()
 		//}
 
 
-		cvReleaseImage(&dstImg);
+//		cvReleaseImage(&dstImg);
 		cvReleaseImage(&result_img);
 		cvReleaseImage(&gray);
 		//================================================================//	
@@ -878,6 +883,24 @@ void CImageView::ProcCutNSearch()
 
 	if (m_searchCnt >= m_vecImageData.size()){
 		KillTimer(_SEARCHIMG);
+
+
+		if (m_bKeyWordSearch == true){
+			ExtractAverTempleteFromResult();
+			m_cutImg = m_pTemplete;
+
+			ClearMatchingResult();
+
+			m_searchCnt = 0;
+			SetTimer(_SEARCHIMG, 10, NULL);
+
+			CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+			pM->AddOutputString(_T("Start Keyword Search Process...."));
+
+			m_bKeyWordSearch = false;			
+		}
+
+
 	}
 
 
@@ -1032,9 +1055,18 @@ void CImageView::SetThreshold(int _value)
 	pM->AddOutputString(str);
 }
 
-void CImageView::StartCNSearch(IplImage *ptemp)
+void CImageView::StartCNSearch(IplImage *ptemp, bool bIsKeyword)
 {
 	m_cutImg = ptemp;
+	m_bKeyWordSearch = bIsKeyword;
+	if (m_pTemplete != NULL){
+		cvReleaseImage(&m_pTemplete);
+	}
+	m_pTemplete = cvCreateImage(cvGetSize(m_cutImg), IPL_DEPTH_8U, 1);
+	m_bIsTemplateCreated = false;
+
+
+
 	m_searchCnt = 0;
 	SetTimer(_SEARCHIMG, 10, NULL);
 
@@ -1065,5 +1097,174 @@ void CImageView::ClearMatchingResult()
 	for (int i = 0; i < m_vecImageData.size(); i++){
 		m_vecImageData[i]->ClearMatchResult();
 	}
+
+}
+
+
+void CImageView::ProcCutNSearchBinary()
+{
+	CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+	int cnt = 0;
+
+	int search_size = m_cutImg->width;
+	if (search_size > m_cutImg->height)
+		search_size = m_cutImg->height;
+
+	IplImage* cut_bw = cvCreateImage(cvGetSize(m_cutImg), IPL_DEPTH_8U, 1);
+
+	cvThreshold(m_cutImg, cut_bw, 128, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+	cvShowImage("cut_bw", cut_bw);
+
+	//cvCopy(cut_bw, pTemplete);
+	//cvShowImage("Modified Templete", pTemplete);
+
+
+	for (; m_searchCnt < m_vecImageData.size(); m_searchCnt++){
+		CSNImage* pImg = m_vecImageData[m_searchCnt];
+		if (pImg->GetTxTex() == 0)
+			continue;
+		//	LoadSNImage(pImg->GetPath(), pImg, 128);
+
+		USES_CONVERSION;
+		char* sz = T2A(pImg->GetPath());
+		//=================================================================================================================
+		IplImage *gray = cvLoadImage(sz, CV_LOAD_IMAGE_GRAYSCALE);
+		if (gray){
+			//	cvShowImage("gray", gray);
+
+			IplImage* im_bw = cvCreateImage(cvGetSize(gray), IPL_DEPTH_8U, 1);
+			cvThreshold(gray, im_bw, 128, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+			cvShowImage("im_bw", im_bw);
+
+			IplImage *result_img = cvCreateImage(cvSize(gray->width - m_cutImg->width + 1, gray->height - cut_bw->height + 1),
+				IPL_DEPTH_32F, 1);
+
+			cvMatchTemplate(im_bw, cut_bw, result_img, CV_TM_CCOEFF_NORMED);
+			cvShowImage("percentage map", result_img);
+
+			float* d = (float*)result_img->imageData;
+			//	float fTh = 0.75f;
+			//	std::vector<POINT3D> tmp_result;
+			for (int y = 0; y < result_img->height; y++){
+				for (int x = 0; x < result_img->width; x++){
+					float fD = *(d + y*result_img->width + x);
+					if (fD > m_Threshold)	{
+						POINT3D left_top;
+						left_top.x = x + m_cutImg->width*0.5f;
+						left_top.y = y + m_cutImg->height*0.5f;
+						left_top.z = fD;
+
+						pImg->AddMatchedPoint(left_top, search_size);
+
+					}
+				}
+			}
+			//		cvReleaseImage(&dstImg);
+			cvReleaseImage(&result_img);
+			cvReleaseImage(&gray);
+			cvReleaseImage(&im_bw);
+			//================================================================//	
+			//if (tmp_result.size() > 0){
+			//	pImg->SetBgColor(0.9f, 0.7f, 0.2f);
+			//}
+		}
+
+		cnt++;
+
+		if (cnt > 10){
+			break;
+		}
+	}
+
+	if (m_searchCnt >= m_vecImageData.size()){
+		KillTimer(_SEARCHIMG);
+		//==========================//
+		//cvZero(m_pTemplete);		
+		float complete = (float)m_searchCnt / (float)m_vecImageData.size();
+
+		CString str;
+		str.Format(_T("Searching images.....%d"), int(complete * 100));
+		str += _T("%");
+		str += _T(" completed.");
+
+		pM->AddOutputString(str, true);
+	}
+
+}
+
+
+IplImage* CImageView::ExtractAverTempleteFromResult()
+{
+	double* dBuffer = new double[m_pTemplete->width * m_pTemplete->height];
+	memset(dBuffer, 0x00, sizeof(double) * m_pTemplete->width * m_pTemplete->height);
+
+	int totalCnt = 0;
+	for (int k = 0; k < m_vecImageData.size(); k++){
+
+		CSNImage* pImg = m_vecImageData[k];
+		int matchCnt = pImg->GetMatchResult()->size();
+
+		if (matchCnt > 0){
+			USES_CONVERSION;
+			char* sz = T2A(pImg->GetPath());
+			//=================================================================================================================
+			IplImage *gray = cvLoadImage(sz, CV_LOAD_IMAGE_GRAYSCALE);
+			//	cvShowImage("gray", gray);
+			if (gray){
+
+				//IplImage* im_bw = cvCreateImage(cvGetSize(gray), IPL_DEPTH_8U, 1);
+				//cvThreshold(gray, im_bw, 128, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+				//	cvShowImage("im_bw", im_bw);
+
+				IplImage* pTmp = cvCreateImage(cvSize(m_cutImg->width, m_cutImg->height), gray->depth, gray->nChannels);
+
+				for (int i = 0; i < pImg->GetMatchResult()->size(); i++){
+					POINT3D pos = pImg->GetMatchResult()->at(i);
+					pos.x -= m_cutImg->width*0.5f;
+					pos.y -= m_cutImg->height*0.5f;
+
+					cvZero(pTmp);
+					cvSetImageROI(gray, cvRect(pos.x, pos.y, m_cutImg->width, m_cutImg->height));		// posx, posy = left - top
+					cvCopy(gray, pTmp);
+
+					cvShowImage("pTmp", pTmp);
+
+					//float* d = (float*)m_pTemplete->imageData;
+					double d = 0;
+					for (int y = 0; y < pTmp->height; y++){
+						for (int x = 0; x < pTmp->width; x++){
+							dBuffer[y*pTmp->width + x] += (unsigned char)pTmp->imageData[y*pTmp->width + x];
+						}
+					}
+					totalCnt++;
+				}
+				cvReleaseImage(&pTmp);
+				cvReleaseImage(&gray);
+
+			}
+		}
+	}
+
+	for (int y = 0; y < m_pTemplete->height; y++){
+		for (int x = 0; x < m_pTemplete->width; x++){
+			m_pTemplete->imageData[y*m_pTemplete->width + x] = (char)(dBuffer[y*m_pTemplete->width + x] / (double)totalCnt);
+		}
+	}
+
+	cvShowImage("Template", m_pTemplete);
+	delete[] dBuffer;
+		//m_bIsTemplateCreated = true;
+
+		//ClearMatchingResult();
+		//m_Threshold = 0.65f;
+		////=============================//
+		//m_cutImg = m_pTemplete;
+		//m_searchCnt = 0;
+		//SetTimer(_SEARCHIMG, 10, NULL);
+
+		////	CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+		//pM->AddOutputString(_T("Start Deep Search Process...."));
+
+	return m_pTemplete;
 
 }

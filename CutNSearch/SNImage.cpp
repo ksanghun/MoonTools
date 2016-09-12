@@ -37,11 +37,13 @@ CSNImage::~CSNImage()
 //	//mtSetPoint3D(&m_vBgColor, r,g,b);
 //}
 
-void CSNImage::AddMatchedPoint(POINT3D pos, int search_size)
+bool CSNImage::AddMatchedPoint(POINT3D pos, int search_size)
 {
 	if (IsDuplicate(pos, search_size) == false){
 		m_matched_pos.push_back(pos);
+		return true;
 	}
+	return false;
 }
 
 void CSNImage::SetName(CString _strpath, CString _strpname, CString _strname, unsigned long _pcode, unsigned long _nCode)
@@ -82,7 +84,7 @@ void CSNImage::SetSize(unsigned short _w, unsigned short _h, float _size)
 
 	mtSetPoint3D(&m_vertex[0], -w, -h, 0.0f);		mtSetPoint2D(&m_texcoord[0], 0.0f, 1.0f);
 	mtSetPoint3D(&m_vertex[1], w, -h, 0.0f);		mtSetPoint2D(&m_texcoord[1], 1.0f, 1.0f);
-	mtSetPoint3D(&m_vertex[2], w, h, 0.0f);		mtSetPoint2D(&m_texcoord[2], 1.0f, 0.0f);
+	mtSetPoint3D(&m_vertex[2], w, h, 0.0f);			mtSetPoint2D(&m_texcoord[2], 1.0f, 0.0f);
 	mtSetPoint3D(&m_vertex[3], -w, h, 0.0f);		mtSetPoint2D(&m_texcoord[3], 0.0f, 0.0f);
 
 
@@ -130,7 +132,8 @@ void CSNImage::SetTexId(GLuint _texid)
 		if (texId > 0){
 			glDeleteTextures(1, &texId);
 		}
-		texId = _texid;}	
+		texId = _texid;
+	}	
 
 }
 
@@ -154,6 +157,33 @@ void CSNImage::DrawImage(float fAlpha)
 	glVertex3f(m_vertex[2].x, m_vertex[2].y, m_vertex[2].z);
 
 	glTexCoord2f(m_texcoord[3].x, m_texcoord[3].y);
+	glVertex3f(m_vertex[3].x, m_vertex[3].y, m_vertex[3].z);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+}
+
+
+void CSNImage::DrawBMPText()
+{
+	glPushMatrix();	
+
+	glBindTexture(GL_TEXTURE_2D, texId);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+	glEnable(GL_TEXTURE_2D);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(m_vertex[0].x, m_vertex[0].y, m_vertex[0].z);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(m_vertex[1].x, m_vertex[1].y, m_vertex[1].z);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(m_vertex[2].x, m_vertex[2].y, m_vertex[2].z);
+
+	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(m_vertex[3].x, m_vertex[3].y, m_vertex[3].z);
 	glEnd();
 

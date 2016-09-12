@@ -22,8 +22,9 @@ public:
 	void DrawThumbNail(float fAlpha);
 	void DrawForPicking();
 	void DrawImage(float fAlpha);
+	void CSNImage::DrawBMPText();
 
-	void AddMatchedPoint(POINT3D pos, int search_size);
+	bool AddMatchedPoint(POINT3D pos, int search_size);
 
 	GLuint GetTexId() { return texId; };
 	GLuint GetTxTex() { return thTexId; };

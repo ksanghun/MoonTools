@@ -386,6 +386,29 @@ void COGLWnd::gl_PopOrtho()
 	glPopMatrix();
 }
 
+GLuint COGLWnd::gl_GetTextTexture(CString str, LOGFONT font, BITMAPINFO* pBmp, CDC* pDC)
+{
+	GLuint texid = 0;
+
+	BITMAP bm;
+	memset(&bm, 0, sizeof(BITMAP));
+	gl_GetBitFont(pDC, &font, str, &bm, pBmp);
+
+	
+	glGenTextures(1, &texid);
+	glBindTexture(GL_TEXTURE_2D, texid);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, 0x812F);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, 0x812F);
+	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	//glTexImage2D(GL_TEXTURE_2D, 0, 3, m_texture->sizeX,m_texture->sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE,m_texture->data);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, bm.bmWidth, bm.bmHeight, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte *)bm.bmBits);
+
+	return texid;	
+}
+
 void COGLWnd::gl_DrawText(POINT3D pos, CString strText, LOGFONT font, short align, BITMAPINFO* pBmp, CDC* pDC)
 {
 	BITMAP bm;
