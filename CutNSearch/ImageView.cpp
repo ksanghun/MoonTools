@@ -868,6 +868,12 @@ void CImageView::ProcCutNSearch()
 
 
 //		cvReleaseImage(&dstImg);
+
+		
+
+		pView->SetPixelMap(result_img);
+
+
 		cvReleaseImage(&result_img);
 		cvReleaseImage(&gray);
 		//================================================================//	

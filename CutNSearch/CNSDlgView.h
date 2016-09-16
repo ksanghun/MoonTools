@@ -23,6 +23,7 @@ public:
 	void FitImgToWnd(int cx, int cy);
 	void KeywordSearch(CString str);
 	GLuint MakeTextTexture(CString str);
+	void SetPixelMap(IplImage* pImg);
 
 private:
 	float m_left, m_right, m_bottom, m_top;
@@ -39,6 +40,7 @@ private:
 	float m_fScreenScale;
 	CSNImage* m_pSrcImage;
 	IplImage *m_pCutImg;
+	IplImage *m_pPixelMap;
 
 	CSNImage* m_pKeyImg;
 

@@ -284,3 +284,8 @@ void CCutNSearchView::OnImageClearimages()
 		m_pImageView->ReleaseImageData();
 	}
 }
+
+void CCutNSearchView::SetPixelMap(IplImage* pImg)
+{
+	pDlg->SetPixelMap(pImg);
+}

@@ -44,6 +44,7 @@ class CViewTree;
 		
 		void ShowCNSDlg(int _th);
 		void SetDlgImagePath(CString str);
+		void SetPixelMap(IplImage* pimg);
 		void ClearMatchingResult();
 		IplImage* ExtractTempleteFromResult();
 	protected:

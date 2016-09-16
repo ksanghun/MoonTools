@@ -234,6 +234,17 @@ bool CCNSDlgView::LoadSNImage(CString strPath, unsigned short &_width, unsigned 
 		//	cvShowImage(sz, pimg);
 		cvCvtColor(pimg, pimg, CV_BGR2RGB);
 
+
+		//For Pixel Map ============================================//
+		if (m_pPixelMap != NULL){
+			cvReleaseImage(&m_pPixelMap);
+		}
+		m_pPixelMap = cvCreateImage(cvSize(pimg->width, pimg->height), pimg->depth, pimg->nChannels);
+		cvZero(&m_pPixelMap);
+		//===========================================================//
+
+		
+
 		m_pSrcImage->SetImgSize(pimg->width, pimg->height);
 		m_pSrcImage->SetSize(pimg->width, pimg->height, 0);
 		
@@ -524,5 +535,10 @@ void CCNSDlgView::DoCNSearch()
 
 		}
 	}
+
+}
+
+void CCNSDlgView::SetPixelMap(IplImage* pImg)
+{
 
 }
