@@ -49,7 +49,7 @@ CImageView::CImageView()
 	m_cutImg = NULL;
 	m_pTemplete = NULL;
 	m_Threshold = 0.75f;
-	m_bIsTemplateCreated = false;
+//	m_bIsTemplateCreated = false;
 	m_bKeyWordSearch = false;
 }
 
@@ -871,7 +871,7 @@ void CImageView::ProcCutNSearch()
 
 		
 
-		pView->SetPixelMap(result_img);
+//		pView->SetPixelMap(result_img);
 
 
 		cvReleaseImage(&result_img);
@@ -889,8 +889,6 @@ void CImageView::ProcCutNSearch()
 
 	if (m_searchCnt >= m_vecImageData.size()){
 		KillTimer(_SEARCHIMG);
-
-
 		if (m_bKeyWordSearch == true){
 			ExtractAverTempleteFromResult();
 			m_cutImg = m_pTemplete;
@@ -902,11 +900,8 @@ void CImageView::ProcCutNSearch()
 
 			CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
 			pM->AddOutputString(_T("Start Keyword Search Process...."));
-
 			m_bKeyWordSearch = false;			
 		}
-
-
 	}
 
 
@@ -1061,6 +1056,67 @@ void CImageView::SetThreshold(int _value)
 	pM->AddOutputString(str);
 }
 
+
+
+void CImageView::StartCNSearchAll(IplImage *ptemp)
+{
+	m_cutImg = ptemp;
+	if (m_pTemplete != NULL){
+		cvReleaseImage(&m_pTemplete);
+	}
+	m_pTemplete = cvCreateImage(cvGetSize(m_cutImg), IPL_DEPTH_8U, 1);
+
+
+	int cnt = 0;
+
+	int search_size = m_cutImg->width;
+	if (search_size > m_cutImg->height)
+		search_size = m_cutImg->height;
+
+
+	for (int i=0; i < m_vecImageData.size(); i++){
+		CSNImage* pImg = m_vecImageData[i];
+		if (pImg->GetTxTex() == 0)
+			continue;
+
+		USES_CONVERSION;
+		char* sz = T2A(pImg->GetPath());
+		//=================================================================================================================
+		IplImage *gray = cvLoadImage(sz, CV_LOAD_IMAGE_GRAYSCALE);
+		IplImage *result_img = cvCreateImage(cvSize(gray->width - m_cutImg->width + 1, gray->height - m_cutImg->height + 1),
+			IPL_DEPTH_32F, 1);
+
+		cvMatchTemplate(gray, m_cutImg, result_img, CV_TM_CCOEFF_NORMED);
+		//cvShowImage("percentage map", result_img);
+
+		//float* d = (float*)result_img->imageData;
+		////	float fTh = 0.75f;
+		////	std::vector<POINT3D> tmp_result;
+		//for (int y = 0; y < result_img->height; y++){
+		//	for (int x = 0; x < result_img->width; x++){
+		//		float fD = *(d + y*result_img->width + x);
+		//		if (fD > m_Threshold)	{
+		//			POINT3D left_top;
+		//			left_top.x = x + m_cutImg->width*0.5f;
+		//			left_top.y = y + m_cutImg->height*0.5f;
+		//			left_top.z = fD;
+
+		//		//	pImg->AddMatchedPoint(left_top, search_size);
+
+		//		}
+		//	}
+		//}
+
+		pView->SetPixelMap(result_img);
+		cvReleaseImage(&result_img);
+		cvReleaseImage(&gray);
+	}
+
+	CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+	pM->AddOutputString(_T("Generate Pixelmap...."));
+}
+
+
 void CImageView::StartCNSearch(IplImage *ptemp, bool bIsKeyword)
 {
 	m_cutImg = ptemp;
@@ -1069,10 +1125,8 @@ void CImageView::StartCNSearch(IplImage *ptemp, bool bIsKeyword)
 		cvReleaseImage(&m_pTemplete);
 	}
 	m_pTemplete = cvCreateImage(cvGetSize(m_cutImg), IPL_DEPTH_8U, 1);
-	m_bIsTemplateCreated = false;
-
-
-
+//	m_bIsTemplateCreated = false;
+	
 	m_searchCnt = 0;
 	SetTimer(_SEARCHIMG, 10, NULL);
 

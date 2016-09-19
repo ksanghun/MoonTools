@@ -40,7 +40,9 @@ class CViewTree;
 		void SetTreeDragItem(CImageList* pImage, HTREEITEM hItem, CViewTree* pCtrl);
 		void RenderImageView();
 		void DoCNSearch(IplImage *ptemp, bool IsKeyword=false);
+		void DoCNSearchForPixelMap(IplImage *ptemp);
 		void SetThreshold(int _value);
+		float GetGhreshold();
 		
 		void ShowCNSDlg(int _th);
 		void SetDlgImagePath(CString str);

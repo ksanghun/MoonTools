@@ -41,7 +41,9 @@ public:
 	void SetIconMode(bool _mode) { m_bIconMode = _mode; };
 	void SetRenderMode(_RENDERMODE mode);
 	void StartCNSearch(IplImage *ptemp, bool bIsKeyword=false);
+	void StartCNSearchAll(IplImage *ptemp);
 	void SetThreshold(int value);
+	float GetThreshold() { return m_Threshold; };
 	void ClearMatchingResult();
 
 	void ReleaseImageData();
@@ -55,7 +57,7 @@ private:
 
 	IplImage *m_cutImg;
 	IplImage *m_pTemplete;
-	bool m_bIsTemplateCreated;
+//	bool m_bIsTemplateCreated;
 	bool m_bKeyWordSearch;
 
 

@@ -16,6 +16,7 @@ public:
 
 	void SetSNImage(CString strPath);
 	void SetSliderPos(int _pos);
+	void SetPixelMap(IplImage* pImg);
 
 // Dialog Data
 	enum { IDD = IDD_DIALOG_CNS };
@@ -43,4 +44,5 @@ public:
 	BOOL m_checkKeyword;
 	afx_msg void OnBnClickedButtonKeywordSearch();
 	afx_msg void OnBnClickedCheckKeyword();
+	afx_msg void OnBnClickedBnPixelmap();
 };

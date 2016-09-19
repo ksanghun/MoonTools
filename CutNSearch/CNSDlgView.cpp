@@ -2,7 +2,7 @@
 #include "CNSDlgView.h"
 #include "CutNSearchView.h"
 
-
+enum TIMEREVNT { _PIXELMAP=100};
 CCNSDlgView::CCNSDlgView()
 {
 	m_fScreenScale = 1.0f;
@@ -37,11 +37,15 @@ CCNSDlgView::CCNSDlgView()
 	m_bCNSReady = false;
 	m_pCutImg = NULL;
 
+	m_pixelMapProcCnt = 0; 
+
 }
 
 
 CCNSDlgView::~CCNSDlgView()
 {
+	if (m_pPixelMap)
+		cvReleaseImage(&m_pPixelMap);
 	delete m_pBmpInfo;
 }
 
@@ -50,6 +54,7 @@ BEGIN_MESSAGE_MAP(CCNSDlgView, COGLWnd)
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -107,15 +112,35 @@ void CCNSDlgView::DrawGuideLine()
 
 
 	// Draw selection rect //
-	glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
-	glBegin(GL_LINE_STRIP);
+	
 
+	glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
+	if (m_pixelMapProcCnt > 0){
+
+		glColor4f(1.0f, 0.0f, 0.0f, 0.3f);
+		glBegin(GL_QUADS);
+		glVertex3f(m_selRect.x1, height - m_selRect.y1, 0.0f);
+		glVertex3f(m_selRect.x1, height - m_selRect.y2, 0.0f);
+		glVertex3f(m_selRect.x2, height - m_selRect.y2, 0.0f);
+		glVertex3f(m_selRect.x2, height - m_selRect.y1, 0.0f);
+		
+		
+		glEnd();
+
+		glColor4f(1.0f, 0.0f, 0.0f, 0.9f);
+	}
+	
+	glBegin(GL_LINE_STRIP);
 	glVertex3f(m_selRect.x1, height - m_selRect.y1, 0.0f);
 	glVertex3f(m_selRect.x2, height - m_selRect.y1, 0.0f);
 	glVertex3f(m_selRect.x2, height - m_selRect.y2, 0.0f);
 	glVertex3f(m_selRect.x1, height - m_selRect.y2, 0.0f);
 	glVertex3f(m_selRect.x1, height - m_selRect.y1, 0.0f);
 	glEnd();
+
+
+
+
 
 	glPopMatrix();
 
@@ -232,18 +257,7 @@ bool CCNSDlgView::LoadSNImage(CString strPath, unsigned short &_width, unsigned 
 	IplImage *pimg = cvLoadImage(sz);
 	if (pimg){
 		//	cvShowImage(sz, pimg);
-		cvCvtColor(pimg, pimg, CV_BGR2RGB);
-
-
-		//For Pixel Map ============================================//
-		if (m_pPixelMap != NULL){
-			cvReleaseImage(&m_pPixelMap);
-		}
-		m_pPixelMap = cvCreateImage(cvSize(pimg->width, pimg->height), pimg->depth, pimg->nChannels);
-		cvZero(&m_pPixelMap);
-		//===========================================================//
-
-		
+		cvCvtColor(pimg, pimg, CV_BGR2RGB);		
 
 		m_pSrcImage->SetImgSize(pimg->width, pimg->height);
 		m_pSrcImage->SetSize(pimg->width, pimg->height, 0);
@@ -414,6 +428,13 @@ void CCNSDlgView::KeywordSearch(CString str)
 {
 	wglMakeCurrent(m_CDCPtr->GetSafeHdc(), m_hRC);
 
+
+	if (m_bCNSReady == false){
+		AfxMessageBox(_T("Font Size is not defined"));
+		return;
+	}
+
+
 	if (m_pCutImg){
 		glColor3f(0.0f, 0.0f, 0.0f);
 		m_pKeyImg->SetTexId(MakeTextTexture(str));
@@ -494,7 +515,54 @@ void CCNSDlgView::KeywordSearch(CString str)
 	//delete bm.bmBits;
 
 }
-void CCNSDlgView::DoCNSearch()
+
+void CCNSDlgView::DoPixelMap()
+{
+
+	if (m_bCNSReady == false){
+		AfxMessageBox(_T("Font Size is not defined"));
+		return;
+	}
+
+
+	if (m_pPixelMap != NULL){
+		cvReleaseImage(&m_pPixelMap);
+	}
+
+	m_pPixelMap = NULL;
+
+	m_pixelMapWidth = m_selRect.width;
+	m_pixelMapHeight = m_selRect.height;
+
+	if (m_pixelMapWidth % 2 != 0)  m_pixelMapWidth--;
+	if (m_pixelMapHeight % 2 != 0)  m_pixelMapHeight--;
+
+
+	m_pixelMapCnt = ((m_pSrcImage->GetWidth() / m_pixelMapWidth)) * ((m_pSrcImage->GetHeight() / m_pixelMapHeight));
+
+//	m_pixelMapCnt = ((m_pSrcImage->GetWidth() - m_pixelMapWidth)) * ((m_pSrcImage->GetHeight() - m_pixelMapWidth));
+
+
+	m_pixelMapProcCnt = 0;
+	m_pixelMapWidthCnt = 0;
+
+
+	m_selRect.set(0, m_pixelMapWidth, 0, m_pixelMapHeight);
+	m_selRect.width = m_pixelMapWidth;
+	m_selRect.height = m_pixelMapHeight;
+
+	m_bCNSReady = true;
+
+	SetTimer(_PIXELMAP, 10, NULL);
+
+	DoCNSearch(true);
+
+
+}
+
+
+
+void CCNSDlgView::DoCNSearch(bool bPixelMap)
 {
 	if (m_bCNSReady){
 
@@ -517,7 +585,6 @@ void CCNSDlgView::DoCNSearch()
 			}
 
 			m_pCutImg = cvCreateImage(cvSize(m_selRect.width, m_selRect.height), gray->depth, gray->nChannels);
-
 			cvSetImageROI(gray, cvRect(m_selRect.x1, m_selRect.y1, m_selRect.width, m_selRect.height));		// posx, posy = left - top
 			cvCopy(gray, m_pCutImg);
 			//	cvResetImageROI(gray);
@@ -530,15 +597,168 @@ void CCNSDlgView::DoCNSearch()
 
 
 			// Search in destate image //
-			pView->DoCNSearch(m_pCutImg);		// Search destinatio images using cut templete.		
-
-
+			if (bPixelMap){
+				pView->DoCNSearchForPixelMap(m_pCutImg);
+			}
+			else{
+				pView->DoCNSearch(m_pCutImg);		// Search destinatio images using cut templete.		
+			}
 		}
 	}
-
 }
+
+
+
+
+POINT3D CCNSDlgView::GetColor(unsigned long nCode)
+{
+	float R, G, B;
+	int i = nCode;
+
+	if (i<256)
+	{
+		R = 0; G = (i); B = 255;
+	}
+
+	else if ((i >= 256) && (i<512))
+	{
+		R = 0; G = 255; B = (255 - (i - 256));
+	}
+	else if ((i >= 512) && (i<768))
+	{
+		R = (i - 512); G = 255; B = 0;
+	}
+	else if ((i >= 768) && (i<1024))
+	{
+		R = 255; G = 255 - (i - 768); B = 0;
+	}
+	else if ((i >= 1024) && (i<1280))
+	{
+		R = 255 - (i - 1024); G = 0; B = (i - 512);
+	}
+
+
+	POINT3D vColor;
+//	mtSetPoint3D(&vColor, R*0.00390625f, G*0.00390625f, B*0.00390625f);
+	mtSetPoint3D(&vColor, R, G, B);
+	return vColor;
+}
+
+
 
 void CCNSDlgView::SetPixelMap(IplImage* pImg)
 {
+	//For Pixel Map ============================================//
+	int width = pImg->width;
+	int height = pImg->height;
 
+	if (m_pPixelMap == NULL){
+		m_pPixelMap = cvCreateImage(cvSize(width, height), 8, 4);
+		cvZero(m_pPixelMap);
+	}
+
+	
+	float colorRatio = 1280.0f / (float)m_pixelMapCnt;
+
+	POINT3D color = GetColor(m_pixelMapProcCnt * colorRatio);
+
+	//if (width % 2 != 0)		width++;
+	//if (height % 2 != 0)	height++;
+
+
+	
+	//===========================================================//
+
+	float max = -1000000;
+	float min = 10000000;
+
+	float* fData = (float*)pImg->imageData;
+	float fTh = pView->GetGhreshold();
+	for (int i = 0; i < pImg->width * pImg->height; i++)
+	{
+		float fD = *(fData);
+		if ((fD > fTh)){
+
+			m_pPixelMap->imageData[i * 4 + 0] = (fD * color.x);
+			m_pPixelMap->imageData[i * 4 + 1] = (fD * color.y);
+			m_pPixelMap->imageData[i * 4 + 2] = (fD * color.z);
+		}
+
+		if (max < fD) max = fD;
+		if (min > fD) min = fD;
+
+
+
+		fData++;
+
+	}
+
+
+
+	//int pidx = 0;
+	//float* fData = (float*)pImg->imageData;
+	//for (int y = 0; y < pImg->height; y++){
+	//	for (int x = 0; x < pImg->width; x++){
+	//		pidx = y*pImg->width + x;
+	//	//	float fD = *(fData + y*pImg->width + x);
+	//		float fD = *(fData);
+
+	//		//if (d < 0.75f)	d = 0;			
+	//		m_pPixelMap->imageData[pidx * 3 + 0] = fD * 255;
+	//		m_pPixelMap->imageData[pidx * 3 + 1] = fD * 255;
+	//		m_pPixelMap->imageData[pidx * 3 + 2] = fD * 255;
+
+	//		fData++;
+	//	}
+	//}
+
+	cvShowImage("Test", m_pPixelMap);
+
+}
+
+void CCNSDlgView::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: Add your message handler code here and/or call default
+	wglMakeCurrent(m_CDCPtr->GetSafeHdc(), m_hRC);
+
+	if (nIDEvent == _PIXELMAP){		
+
+
+		DoCNSearch(true);
+		
+		int widthCnt = m_pSrcImage->GetWidth() / m_pixelMapWidth;
+		m_pixelMapProcCnt++;
+		m_pixelMapWidthCnt++;
+		if (m_pixelMapProcCnt >= m_pixelMapCnt){
+			KillTimer(_PIXELMAP);
+			m_pixelMapProcCnt = 0;
+		}
+		else{
+
+			if (m_pixelMapWidthCnt >= widthCnt){
+				m_selRect.x1 = 0;
+				m_selRect.x2 = m_pixelMapWidth;
+
+				m_selRect.y1 = m_selRect.y1 + m_pixelMapHeight;
+				m_selRect.y2 = m_selRect.y2 + m_pixelMapHeight;
+
+			//	m_selRect.y1 = m_selRect.y1 + 1;
+			//	m_selRect.y2 = m_selRect.y2 + 1;
+
+				m_pixelMapWidthCnt = 0;
+			}
+			else{
+				m_selRect.x1 = m_selRect.x1 + m_pixelMapWidth;
+				m_selRect.x2 = m_selRect.x2 + m_pixelMapWidth;
+
+			//	m_selRect.x1 = m_selRect.x1 + 1;
+			//	m_selRect.x2 = m_selRect.x2 + 1;
+			}
+		}
+		Render();
+
+	}
+
+
+	COGLWnd::OnTimer(nIDEvent);
 }

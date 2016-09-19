@@ -81,8 +81,9 @@
 #define IDC_BUTTON_CLEAR_RESULT         1003
 #define IDC_EDIT_KEYWORD                1004
 #define IDC_CHECK_KEYWORD               1005
-#define IDC_BUTTON2                     1006
 #define IDC_BUTTON_KEYWORD_SEARCH       1006
+#define IDC_BUTTON2                     1007
+#define IDC_BN_PIXELMAP                 1007
 #define ID_RENDER_SORTBYGROUP           32771
 #define ID_RENDER_SORTBYORDER           32772
 #define ID_IMAGE_CLEARIMAGES            32773
@@ -93,7 +94,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        313
 #define _APS_NEXT_COMMAND_VALUE         32774
-#define _APS_NEXT_CONTROL_VALUE         1007
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

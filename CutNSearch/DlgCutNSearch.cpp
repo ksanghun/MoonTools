@@ -48,6 +48,7 @@ BEGIN_MESSAGE_MAP(CDlgCutNSearch, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_CLEAR_RESULT, &CDlgCutNSearch::OnBnClickedButtonClearResult)
 	ON_BN_CLICKED(IDC_BUTTON_KEYWORD_SEARCH, &CDlgCutNSearch::OnBnClickedButtonKeywordSearch)
 	ON_BN_CLICKED(IDC_CHECK_KEYWORD, &CDlgCutNSearch::OnBnClickedCheckKeyword)
+	ON_BN_CLICKED(IDC_BN_PIXELMAP, &CDlgCutNSearch::OnBnClickedBnPixelmap)
 END_MESSAGE_MAP()
 
 
@@ -197,12 +198,7 @@ void CDlgCutNSearch::OnBnClickedButtonKeywordSearch()
 {
 	// TODO: Add your control notification handler code here
 	UpdateData(TRUE);
-	m_pView->KeywordSearch(m_editKeyword);
-
-
-
-
-	
+	m_pView->KeywordSearch(m_editKeyword);	
 }
 
 
@@ -210,4 +206,21 @@ void CDlgCutNSearch::OnBnClickedCheckKeyword()
 {
 	// TODO: Add your control notification handler code here
 
+}
+
+
+void CDlgCutNSearch::SetPixelMap(IplImage* pImg)
+{
+	if (m_pView){
+		m_pView->SetPixelMap(pImg);
+	}
+}
+
+void CDlgCutNSearch::OnBnClickedBnPixelmap()
+{
+	// TODO: Add your control notification handler code here
+
+	if (m_pView){
+		m_pView->DoPixelMap();		// Cut template image from source code		
+	}
 }

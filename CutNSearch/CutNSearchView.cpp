@@ -79,7 +79,6 @@ void CCutNSearchView::OnDraw(CDC* /*pDC*/)
 	//ASSERT_VALID(pDoc);
 	//if (!pDoc)
 	//	return;
-
 	// TODO: add draw code for native data here
 }
 
@@ -190,6 +189,14 @@ void CCutNSearchView::RenderImageView()
 }
 
 
+void CCutNSearchView::DoCNSearchForPixelMap(IplImage *ptemp)
+{
+	if (m_pImageView){
+		m_pImageView->StartCNSearchAll(ptemp);
+	}
+
+}
+
 void CCutNSearchView::DoCNSearch(IplImage *ptemp, bool IsKeyword)
 {
 	if (m_pImageView){
@@ -203,6 +210,11 @@ void CCutNSearchView::SetThreshold(int _value)
 	if (m_pImageView){
 		m_pImageView->SetThreshold(_value);
 	}
+}
+
+float CCutNSearchView::GetGhreshold()
+{	
+	return	m_pImageView->GetThreshold();
 }
 
 IplImage* CCutNSearchView::ExtractTempleteFromResult()

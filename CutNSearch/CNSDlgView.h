@@ -19,11 +19,13 @@ public:
 	void InitGLview(int _nWidth, int _nHeight);
 	void MouseWheel(short zDelta);
 	bool LoadSNImage(CString strPath, unsigned short &_width, unsigned short &_height);
-	void DoCNSearch();
+	void DoCNSearch(bool bPixelMap=false);
+	void DoPixelMap();
 	void FitImgToWnd(int cx, int cy);
 	void KeywordSearch(CString str);
 	GLuint MakeTextTexture(CString str);
 	void SetPixelMap(IplImage* pImg);
+	POINT3D GetColor(unsigned long nCode);
 
 private:
 	float m_left, m_right, m_bottom, m_top;
@@ -51,6 +53,13 @@ private:
 	POINT2Di m_vSelPos;
 	RECT2D m_selRect;
 
+	int m_pixelMapWidth;
+	int m_pixelMapHeight;
+	int m_pixelMapCnt;
+	int m_pixelMapProcCnt;
+	int m_pixelMapWidthCnt;
+
+
 	void DrawGuideLine();
 
 public:
@@ -59,5 +68,6 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
