@@ -28,6 +28,7 @@ struct POINT3D
    float x,y,z;
 };
 
+
 struct POINT3Di
 {
 	short x,y,z;

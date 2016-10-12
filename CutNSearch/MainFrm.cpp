@@ -29,6 +29,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_SETTINGCHANGE()
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
 	ON_WM_MOUSEMOVE()
+	ON_COMMAND(ID_FILE_CONFIGURATION, &CMainFrame::OnFileConfiguration)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -45,6 +46,10 @@ CMainFrame::CMainFrame()
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
+
+
+	m_strSrcPath = "";
+	m_strLogPath = "";
 }
 
 CMainFrame::~CMainFrame()
@@ -120,8 +125,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	m_wndFileView.EnableDocking(CBRS_ALIGN_ANY);
+	m_wndFileView.ShowPane(FALSE, FALSE, FALSE);
 //	m_wndClassView.EnableDocking(CBRS_ALIGN_ANY);
-	DockPane(&m_wndFileView);
+//	DockPane(&m_wndFileView);
+
+
 	CDockablePane* pTabbedBar = NULL;
 //	m_wndClassView.AttachToTabWnd(&m_wndFileView, DM_SHOW, TRUE, &pTabbedBar);
 	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
@@ -176,8 +184,59 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//
 	
 
+
+	InitConfituration();
+	m_wndFileView.FillFileView(m_strSrcPath);
 	return 0;
 }
+
+void CMainFrame::InitConfituration()
+{
+
+	CString sPath;
+	GetModuleFileName(nullptr, sPath.GetBuffer(_MAX_PATH + 1), _MAX_PATH);
+	sPath.ReleaseBuffer();
+	CString path = sPath.Left(sPath.ReverseFind(_T('\\')));
+	CString strFle = path + "\\conf.bin";
+
+
+	// Load Config
+	FILE* fp = 0;
+	fopen_s(&fp, (CStringA)strFle, "rb");
+
+	const int pathSize = 256;
+	char srcPath[pathSize];
+//	memset(srcPath, 0x00, sizeof(srcPath));
+	if (fp){	
+		SYSTEMTIME st;
+		fread(&st, sizeof(SYSTEMTIME), 1, fp);
+		fread(srcPath, sizeof(srcPath), 1, fp);
+		m_strSrcPath = (CStringA)srcPath;
+		m_strLogPath = (CStringA)srcPath;
+		fclose(fp);
+		
+	}
+	else{
+		CDlgConf dlg;
+		if (dlg.DoModal() == IDOK)
+		{
+			m_strSrcPath = dlg.GetSrcPath();
+
+			// Save Config //
+			fopen_s(&fp, (CStringA)strFle, "wb");
+			SYSTEMTIME st;
+			GetSystemTime(&st);
+			if (fp){
+				sprintf_s(srcPath, sizeof(srcPath), (CStringA)m_strSrcPath, fp);
+				fwrite(&st, sizeof(SYSTEMTIME), 1, fp);
+				fwrite(srcPath, pathSize, 1, fp);
+				fclose(fp);		
+			}
+		}		
+	}
+}
+
+
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
@@ -401,6 +460,7 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 void CMainFrame::OnFileOpen()
 {
 	// TODO: Add your command handler code here
+	/*
 	ITEMIDLIST *pidlBrowse;
 	CString strPath;
 
@@ -430,6 +490,7 @@ void CMainFrame::OnFileOpen()
 			m_wndFileView.FillFileView(strPath);
 		}
 	}
+	*/
 
 }
 
@@ -461,4 +522,39 @@ void CMainFrame::AddOutputString(CString str, bool IsReplace)
 void CMainFrame::ResetOutputWnd()
 {
 	m_wndOutput.ClearAll();
+}
+
+void CMainFrame::OnFileConfiguration()
+{
+	// TODO: Add your command handler code here
+	CDlgConf dlg(NULL, m_strSrcPath, m_strLogPath);
+	
+
+	CString sPath;
+	GetModuleFileName(nullptr, sPath.GetBuffer(_MAX_PATH + 1), _MAX_PATH);
+	sPath.ReleaseBuffer();
+	CString path = sPath.Left(sPath.ReverseFind(_T('\\')));
+	CString strFle = path + "\\conf.bin";
+
+
+	
+
+	if (dlg.DoModal() == IDOK)
+	{
+		m_strSrcPath = dlg.GetSrcPath();
+
+		const int pathSize = 256;
+		char srcPath[pathSize];
+		// Save Config //
+		FILE* fp = 0;
+		fopen_s(&fp, (CStringA)strFle, "wb");
+		SYSTEMTIME st;
+		GetSystemTime(&st);
+		if (fp){
+			sprintf_s(srcPath, sizeof(srcPath), (CStringA)m_strSrcPath, fp);
+			fwrite(&st, sizeof(SYSTEMTIME), 1, fp);
+			fwrite(srcPath, pathSize, 1, fp);
+			fclose(fp);
+		}
+	}
 }

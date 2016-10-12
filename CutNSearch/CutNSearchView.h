@@ -77,6 +77,7 @@ class CViewTree;
 		afx_msg void OnRenderSortbygroup();
 		afx_msg void OnRenderSortbyorder();
 		afx_msg void OnImageClearimages();
+		virtual void OnInitialUpdate();
 	};
 
 #ifndef _DEBUG  // debug version in CutNSearchView.cpp

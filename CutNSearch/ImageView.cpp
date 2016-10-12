@@ -385,6 +385,11 @@ void CImageView::InitGLview(int _nWidth, int _nHeight)
 	//	GCL_HCURSOR,
 	//	(LONG)LoadCursor(AfxGetInstanceHandle(),
 	//	MAKEINTRESOURCE(IDC_CURSOR1)));
+
+
+//	CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+//	SetTreeDragItem(pM->GetViewFiewCtrl()->GetImageList(), pM->GetViewFiewCtrl()->GetRootItem(), pM->GetViewFiewCtrl()->GetTreeViewCtrl());
+	
 	SetTimer(_RENDER, 10, NULL);
 }
 void CImageView::MouseWheel(short zDelta)
@@ -542,9 +547,18 @@ void CImageView::OnLButtonUp(UINT nFlags, CPoint point)
 
 void CImageView::SetTreeDragItem(CImageList* pImage, HTREEITEM hItem, CViewTree* pCtrl)
 {
-	m_pTreeDragImage = pImage;	
-	m_hDragItem = hItem;
-	m_pTreeCtrl = pCtrl;
+	//m_pTreeDragImage = pImage;	
+	//m_hDragItem = hItem;
+	//m_pTreeCtrl = pCtrl;
+	CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+	m_pTreeDragImage = pM->GetViewFiewCtrl()->GetImageList();
+	m_hDragItem = pM->GetViewFiewCtrl()->GetRootItem();
+	m_pTreeCtrl = pM->GetViewFiewCtrl()->GetTreeViewCtrl();
+
+	AddImageData(m_hDragItem);
+	pM->AddOutputString(_T("Generate thumbnails"));
+	SetTimer(_ADDIMG, 10, NULL);
+
 }
 
 void CImageView::PushImageDataSet(unsigned long _code, unsigned long _pcode, CSNImage* pimg)
@@ -708,14 +722,14 @@ void CImageView::OnMouseMove(UINT nFlags, CPoint point)
 	if (m_pTreeDragImage)
 	{				
 	//	m_pTreeCtrl->SendMessage(WM_LBUTTONUP);
-		AddImageData(m_hDragItem);		
+		//AddImageData(m_hDragItem);		
 
-		CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
-		pM->AddOutputString(_T("Generate thumbnails"));
-		SetTimer(_ADDIMG, 10, NULL);
+		//CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+		//pM->AddOutputString(_T("Generate thumbnails"));
+		//SetTimer(_ADDIMG, 10, NULL);
 
-		m_pTreeCtrl->ReleaseItemDrag();
-		m_pTreeDragImage = NULL;
+		//m_pTreeCtrl->ReleaseItemDrag();
+		//m_pTreeDragImage = NULL;
 	}
 	
 	if (GetCapture()){		
@@ -787,8 +801,45 @@ void CImageView::OnTimer(UINT_PTR nIDEvent)
 	COGLWnd::OnTimer(nIDEvent);
 }
 
+
+POINT3D CImageView::GetColor(unsigned long nCode)
+{
+	float R, G, B;
+	int i = nCode;
+
+	if (i<256)
+	{
+		R = 0; G = (i); B = 255;
+	}
+
+	else if ((i >= 256) && (i<512))
+	{
+		R = 0; G = 255; B = (255 - (i - 256));
+	}
+	else if ((i >= 512) && (i<768))
+	{
+		R = (i - 512); G = 255; B = 0;
+	}
+	else if ((i >= 768) && (i<1024))
+	{
+		R = 255; G = 255 - (i - 768); B = 0;
+	}
+	else if ((i >= 1024) && (i<1280))
+	{
+		R = 255 - (i - 1024); G = 0; B = (i - 512);
+	}
+
+
+	POINT3D vColor;
+	//	mtSetPoint3D(&vColor, R*0.00390625f, G*0.00390625f, B*0.00390625f);
+	mtSetPoint3D(&vColor, R, G, B);
+	return vColor;
+}
+
+
 void CImageView::ProcCutNSearch()
 {
+	CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
 	int cnt = 0;
 
 	int search_size = m_cutImg->width;
@@ -822,7 +873,7 @@ void CImageView::ProcCutNSearch()
 			IPL_DEPTH_32F, 1);
 
 		cvMatchTemplate(gray, m_cutImg, result_img, CV_TM_CCOEFF_NORMED);
-		cvShowImage("percentage map", result_img);
+		//cvShowImage("percentage map", result_img);
 
 		float* d = (float*)result_img->imageData;
 	//	float fTh = 0.75f;
@@ -833,7 +884,7 @@ void CImageView::ProcCutNSearch()
 				if (fD>m_Threshold)	{
 					POINT3D left_top;
 					left_top.x = x + m_cutImg->width*0.5f;
-					left_top.y = y + m_cutImg->height*0.5f;
+					left_top.y = y + m_cutImg->height*0.5f;					
 					left_top.z = fD;
 
 					pImg->AddMatchedPoint(left_top, search_size);
@@ -887,6 +938,15 @@ void CImageView::ProcCutNSearch()
 		}
 	}
 
+
+	float complete = (float)m_searchCnt / (float)m_vecImageData.size();
+	CString str;
+	str.Format(_T("Searching images.....%d"), int(complete * 100));
+	str += _T("%");
+	str += _T(" completed.");
+	pM->AddOutputString(str, true);
+
+
 	if (m_searchCnt >= m_vecImageData.size()){
 		KillTimer(_SEARCHIMG);
 		if (m_bKeyWordSearch == true){
@@ -898,22 +958,18 @@ void CImageView::ProcCutNSearch()
 			m_searchCnt = 0;
 			SetTimer(_SEARCHIMG, 10, NULL);
 
-			CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+			
 			pM->AddOutputString(_T("Start Keyword Search Process...."));
 			m_bKeyWordSearch = false;			
+		}
+		else{
+			pM->AddOutputString(_T("Create a Log File"));
+			AfxMessageBox(_T("Save Log"));
 		}
 	}
 
 
-	float complete = (float)m_searchCnt / (float)m_vecImageData.size();
-
-	CString str;
-	str.Format(_T("Searching images.....%d"), int(complete * 100));
-	str += _T("%");
-	str += _T(" completed.");
-
-	CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
-	pM->AddOutputString(str, true);
+	
 }
 
 void CImageView::GenerateThumbnail()
@@ -1211,7 +1267,7 @@ void CImageView::ProcCutNSearchBinary()
 					if (fD > m_Threshold)	{
 						POINT3D left_top;
 						left_top.x = x + m_cutImg->width*0.5f;
-						left_top.y = y + m_cutImg->height*0.5f;
+						left_top.y = y + m_cutImg->height*0.5f;						
 						left_top.z = fD;
 
 						pImg->AddMatchedPoint(left_top, search_size);

@@ -6,7 +6,7 @@
 #include "FileView.h"
 #include "ClassView.h"
 #include "OutputWnd.h"
-
+#include "DlgConf.h"
 
 class CMainFrame : public CFrameWndEx
 {
@@ -29,6 +29,9 @@ public:
 	void AddOutputString(CString str, bool IsReplace = false);
 	void ResetOutputWnd();
 
+	void InitConfituration();
+	CFileView* GetViewFiewCtrl() { return &m_wndFileView; }
+
 // Implementation
 public:
 	virtual ~CMainFrame();
@@ -47,6 +50,9 @@ protected:  // control bar embedded members
 	COutputWnd        m_wndOutput;
 
 
+	CString			m_strSrcPath;
+	CString			m_strLogPath;
+
 
 // Generated message map functions
 protected:
@@ -64,6 +70,7 @@ public:
 	afx_msg void OnFileOpen();
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnFileConfiguration();
 };
 
 

@@ -197,6 +197,8 @@ void CViewTree::ReleaseItemDrag()
 
 void CViewTree::OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult)
 {
+
+	/*
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
 	// TODO: Add your control notification handler code here
 	if (m_pTreeDragImage) m_pTreeDragImage->DeleteImageList();
@@ -221,6 +223,7 @@ void CViewTree::OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult)
 
 
 	pView->SetTreeDragItem(m_pTreeDragImage, m_hDragItem, this);
+	*/
 	
 
 	*pResult = 0;

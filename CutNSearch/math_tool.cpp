@@ -100,6 +100,8 @@ float mtDistance(POINT3D A, POINT3D B)
 	return fdist;
 }
 
+
+
 float mtDistanceXY(POINT3D A, POINT3D B)
 {
 	POINT3D C=A-B;
@@ -259,6 +261,9 @@ POINT3D operator - (const POINT3D A, const POINT3D B)
 
 	return C;
 }
+
+
+
 POINT3D operator * (const POINT3D A, const POINT3D B)
 {
 	POINT3D C;
@@ -303,6 +308,8 @@ POINT3D operator - (const POINT3D A, const float value)
 
 	return B;
 }
+
+
 
 POINT3D operator * (const POINT3D A, const float value)
 {

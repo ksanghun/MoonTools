@@ -28,6 +28,8 @@ public:
 	void OnChangeVisualStyle();
 	void FillFileView(CString strFolder);
 	CViewTree* GetTreeViewCtrl() { return &m_wndFileView; }
+	CImageList* GetImageList() { return &m_FileViewImages; }
+	HTREEITEM GetRootItem() { return m_rootItem; }
 
 	void MouseMoveEnvet();
 
@@ -40,6 +42,7 @@ protected:
 	CViewTree m_wndFileView;
 	CImageList m_FileViewImages;
 	CFileViewToolBar m_wndToolBar;
+	HTREEITEM m_rootItem;
 
     
 	
@@ -70,5 +73,6 @@ protected:
 	
 public:
 
+	afx_msg void OnClose();
 };
 

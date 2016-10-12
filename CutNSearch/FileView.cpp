@@ -44,6 +44,7 @@ BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 
 	ON_NOTIFY(TVN_SELCHANGED, 4, &CFileView::OnTvnSelchangedTree)
 
+	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -107,6 +108,8 @@ void CFileView::FillFileView(CString strFolder)
 	ExtractFolder(strFolder, strFolder, filelist, hRoot);
 
 
+	//pView->SetTreeDragItem(&m_FileViewImages, m_rootItem, &m_wndFileView);
+
 	int a = 0;
 }
 
@@ -114,6 +117,9 @@ void CFileView::FillFileView(CString strFolder)
 HTREEITEM CFileView::ExtractFolder(CString strFolder, CString strName, _strlist& filelist, HTREEITEM& parentItem)
 {
 	HTREEITEM hRes = m_wndFileView.InsertItem(strName, 0, 0, parentItem);
+	if (parentItem == NULL){
+		m_rootItem = hRes;
+	}
 	
 	//int nCount = 0;
 	CString strSubPath;
@@ -303,3 +309,11 @@ void CFileView::MouseMoveEnvet()
 	}
 }
 
+
+
+void CFileView::OnClose()
+{
+	// TODO: Add your message handler code here and/or call default
+
+	CDockablePane::OnClose();
+}

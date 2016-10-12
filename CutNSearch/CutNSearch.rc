@@ -128,7 +128,7 @@ BEGIN
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
-        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM "Configuration",               ID_FILE_CONFIGURATION
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
@@ -509,6 +509,19 @@ BEGIN
     PUSHBUTTON      "Pixel Map",IDC_BN_PIXELMAP,214,2,25,22,BS_MULTILINE
 END
 
+IDD_DIALOG_CONF DIALOGEX 0, 0, 255, 86
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Configurations"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Apply",IDOK,198,62,50,14
+    EDITTEXT        IDC_EDIT1,84,12,114,14,ES_AUTOHSCROLL
+    LTEXT           "Source File Location: ",IDC_STATIC,9,14,69,8
+    PUSHBUTTON      "Browser...",IDC_BUTTON1,204,12,44,14
+    EDITTEXT        IDC_EDIT2,84,29,114,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Log File Location: ",IDC_STATIC,9,31,58,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -524,6 +537,14 @@ BEGIN
         RIGHTMARGIN, 344
         TOPMARGIN, 7
         BOTTOMMARGIN, 285
+    END
+
+    IDD_DIALOG_CONF, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 248
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 79
     END
 END
 #endif    // APSTUDIO_INVOKED

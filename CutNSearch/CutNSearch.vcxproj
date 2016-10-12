@@ -115,6 +115,7 @@
     <ClInclude Include="CutNSearchDoc.h" />
     <ClInclude Include="CutNSearchView.h" />
     <ClInclude Include="data_type.h" />
+    <ClInclude Include="DlgConf.h" />
     <ClInclude Include="DlgCutNSearch.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="ImageView.h" />
@@ -135,6 +136,7 @@
     <ClCompile Include="CutNSearch.cpp" />
     <ClCompile Include="CutNSearchDoc.cpp" />
     <ClCompile Include="CutNSearchView.cpp" />
+    <ClCompile Include="DlgConf.cpp" />
     <ClCompile Include="DlgCutNSearch.cpp" />
     <ClCompile Include="FileView.cpp" />
     <ClCompile Include="ImageView.cpp" />

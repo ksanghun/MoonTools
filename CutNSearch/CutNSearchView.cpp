@@ -301,3 +301,14 @@ void CCutNSearchView::SetPixelMap(IplImage* pImg)
 {
 	pDlg->SetPixelMap(pImg);
 }
+
+void CCutNSearchView::OnInitialUpdate()
+{
+	CView::OnInitialUpdate();
+
+	// TODO: Add your specialized code here and/or call the base class
+	if (m_pImageView){
+		m_pImageView->SetTreeDragItem(0,0,0);
+	}
+	
+}

@@ -114,6 +114,7 @@ private:
 	void GenerateThumbnail();
 	void ProcCutNSearch();
 	void ProcCutNSearchBinary();
+	POINT3D GetColor(unsigned long nCode);
 	
 
 

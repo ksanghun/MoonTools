@@ -75,6 +75,9 @@
     <ClInclude Include="CNSDlgView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DlgConf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CutNSearch.cpp">
@@ -123,6 +126,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CNSDlgView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgConf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
