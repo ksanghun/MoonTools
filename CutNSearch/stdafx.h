@@ -51,6 +51,11 @@
 
 
 
+typedef struct _IMGPATHInfo
+{
+	CString strPath;
+	CString strName;
+}_IMGPATHInfo;
 
 class CCutNSearchView;
 extern CCutNSearchView* pView;

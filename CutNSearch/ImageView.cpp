@@ -51,6 +51,19 @@ CImageView::CImageView()
 	m_Threshold = 0.75f;
 //	m_bIsTemplateCreated = false;
 	m_bKeyWordSearch = false;
+
+
+
+	mtSetPoint3D(&m_result_color[9], 1.0f, 0.0f, 0.0f);
+	mtSetPoint3D(&m_result_color[8], 1.0f, 0.2f, 0.0f);
+	mtSetPoint3D(&m_result_color[7], 1.0f, 0.4f, 0.0f);
+	mtSetPoint3D(&m_result_color[6], 1.0f, 0.6f, 0.0f);
+	mtSetPoint3D(&m_result_color[5], 1.0f, 0.8f, 0.0f);
+	mtSetPoint3D(&m_result_color[4], 1.0f, 1.0f, 0.0f);
+	mtSetPoint3D(&m_result_color[3], 0.8f, 1.0f, 0.0f);
+	mtSetPoint3D(&m_result_color[2], 0.6f, 1.0f, 0.0f);
+	mtSetPoint3D(&m_result_color[1], 0.4f, 1.0f, 0.0f);
+	mtSetPoint3D(&m_result_color[0], 0.2f, 1.0f, 0.0f);
 }
 
 
@@ -171,7 +184,7 @@ void CImageView::Render()
 {
 	wglMakeCurrent(m_CDCPtr->GetSafeHdc(), m_hRC);
 
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
@@ -545,21 +558,21 @@ void CImageView::OnLButtonUp(UINT nFlags, CPoint point)
 }
 
 
-void CImageView::SetTreeDragItem(CImageList* pImage, HTREEITEM hItem, CViewTree* pCtrl)
-{
-	//m_pTreeDragImage = pImage;	
-	//m_hDragItem = hItem;
-	//m_pTreeCtrl = pCtrl;
-	CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
-	m_pTreeDragImage = pM->GetViewFiewCtrl()->GetImageList();
-	m_hDragItem = pM->GetViewFiewCtrl()->GetRootItem();
-	m_pTreeCtrl = pM->GetViewFiewCtrl()->GetTreeViewCtrl();
-
-	AddImageData(m_hDragItem);
-	pM->AddOutputString(_T("Generate thumbnails"));
-	SetTimer(_ADDIMG, 10, NULL);
-
-}
+//void CImageView::SetTreeDragItem(CImageList* pImage, HTREEITEM hItem, CViewTree* pCtrl)
+//{
+//	//m_pTreeDragImage = pImage;	
+//	//m_hDragItem = hItem;
+//	//m_pTreeCtrl = pCtrl;
+//	//CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+//	//m_pTreeDragImage = pM->GetViewFiewCtrl()->GetImageList();
+//	//m_hDragItem = pM->GetViewFiewCtrl()->GetRootItem();
+//	//m_pTreeCtrl = pM->GetViewFiewCtrl()->GetTreeViewCtrl();
+//
+//	//AddImageData(m_hDragItem);
+//	//pM->AddOutputString(_T("Generate thumbnails"));
+//	//SetTimer(_ADDIMG, 10, NULL);
+//
+//}
 
 void CImageView::PushImageDataSet(unsigned long _code, unsigned long _pcode, CSNImage* pimg)
 {
@@ -581,11 +594,11 @@ void CImageView::PushImageDataSet(unsigned long _code, unsigned long _pcode, CSN
 		iter_gr = m_mapGrupImg.find(_pcode);
 		if (iter_gr == m_mapGrupImg.end()){		// New Group
 			_vecSNImage vecImg;
-			vecImg.push_back(pimg);
-			m_mapGrupImg[_pcode] = vecImg;
+			vecImg.push_back(std::move(pimg));
+			m_mapGrupImg[_pcode] = std::move(vecImg);
 		}
 		else{
-			m_mapGrupImg[_pcode].push_back(pimg);
+			m_mapGrupImg[_pcode].push_back(std::move(pimg));
 		}
 		//======================================//
 
@@ -594,14 +607,15 @@ void CImageView::PushImageDataSet(unsigned long _code, unsigned long _pcode, CSN
 	}
 }
 
-
+/*
 void CImageView::AddImageData(HTREEITEM _item)
 {
+	
 	USES_CONVERSION;
 	char* sz = 0;
 
 	CString strPath, strPName, strName;
-	unsigned long pCode=0, cCode = 0;
+	unsigned long pCode = 0, cCode = 0;
 	HTREEITEM hChildItem = m_pTreeCtrl->GetChildItem(_item);
 
 	if (hChildItem == NULL){  // No Child!! File
@@ -617,40 +631,40 @@ void CImageView::AddImageData(HTREEITEM _item)
 		sz = T2A(strPName);
 		pCode = getHashCode(sz);
 		//=================================================//	
-		
-	//	if (LoadSNImage(strPath, pimg, 128) == true){
-			//==================================//		
-			sz = T2A(strPath);
-			cCode = getHashCode(sz);
 
-			// Add Image Data //
-			pimg->SetName(strPath, strPName, strName, pCode, cCode);
+		//	if (LoadSNImage(strPath, pimg, 128) == true){
+		//==================================//		
+		sz = T2A(strPath);
+		cCode = getHashCode(sz);
 
-			PushImageDataSet(cCode, pCode, pimg);			
-			//iter = m_mapImageData.find(cCode);
-			//if (iter == m_mapImageData.end()){
+		// Add Image Data //
+		pimg->SetName(strPath, strPName, strName, pCode, cCode);
 
-			//	// Store Data Information ================================//!!!!
-			//	m_mapImageData[cCode] = pimg;		// for duplication checking
+		PushImageDataSet(cCode, pCode, pimg);
+		//iter = m_mapImageData.find(cCode);
+		//if (iter == m_mapImageData.end()){
 
-			//	// push image data sequecily ..
-			//	m_vecImageData.push_back(pimg);
+		//	// Store Data Information ================================//!!!!
+		//	m_mapImageData[cCode] = pimg;		// for duplication checking
 
-			//	// Make Group =========================//
-			//	iter_gr = m_mapGrupImg.find(pCode);
-			//	if (iter_gr == m_mapGrupImg.end()){		// New Group
-			//		_vecSNImage vecImg;
-			//		vecImg.push_back(pimg);
-			//		m_mapGrupImg[pCode] = vecImg;
-			//	}
-			//	else{
-			//		m_mapGrupImg[pCode].push_back(pimg);
-			//	}
-			//	//======================================//
+		//	// push image data sequecily ..
+		//	m_vecImageData.push_back(pimg);
 
-			//	pM->ResetOutputWnd();
-			//	pM->AddOutputString(strPath);
-			//}
+		//	// Make Group =========================//
+		//	iter_gr = m_mapGrupImg.find(pCode);
+		//	if (iter_gr == m_mapGrupImg.end()){		// New Group
+		//		_vecSNImage vecImg;
+		//		vecImg.push_back(pimg);
+		//		m_mapGrupImg[pCode] = vecImg;
+		//	}
+		//	else{
+		//		m_mapGrupImg[pCode].push_back(pimg);
+		//	}
+		//	//======================================//
+
+		//	pM->ResetOutputWnd();
+		//	pM->AddOutputString(strPath);
+		//}
 		//}
 		//else{
 		//	//pM->AddOutputString(strPath);
@@ -674,28 +688,28 @@ void CImageView::AddImageData(HTREEITEM _item)
 				strPath = m_pTreeCtrl->GetItemFullPath(hChildItem);
 
 				//===================================//
-				
-			//	if (LoadSNImage(strPath, pimg, 128) == true){
-					//==================================//
-					char* sz = T2A(strPath);
-					cCode = getHashCode(sz);
 
-					// Add Image Data //
-					pimg->SetName(strPath, strPName, strName, pCode, cCode);
-					std::map<unsigned long, CSNImage*>::iterator iter;
+				//	if (LoadSNImage(strPath, pimg, 128) == true){
+				//==================================//
+				char* sz = T2A(strPath);
+				cCode = getHashCode(sz);
 
-					PushImageDataSet(cCode, pCode, pimg);
+				// Add Image Data //
+				pimg->SetName(strPath, strPName, strName, pCode, cCode);
+				std::map<unsigned long, CSNImage*>::iterator iter;
 
-					//iter = m_mapImageData.find(cCode);
-					//if (iter == m_mapImageData.end()){
+				PushImageDataSet(cCode, pCode, pimg);
 
-					//	// Store Data Information ================================//!!!!
-					//	m_mapImageData[cCode] = pimg;
-					//	m_vecImageData.push_back(pimg);						
-					//	// Store Data Information ================================//!!!!
+				//iter = m_mapImageData.find(cCode);
+				//if (iter == m_mapImageData.end()){
 
-					//	pM->AddOutputString(strPath);
-					//}
+				//	// Store Data Information ================================//!!!!
+				//	m_mapImageData[cCode] = pimg;
+				//	m_vecImageData.push_back(pimg);						
+				//	// Store Data Information ================================//!!!!
+
+				//	pM->AddOutputString(strPath);
+				//}
 				//}
 				//else{
 				//	delete pimg;
@@ -706,11 +720,50 @@ void CImageView::AddImageData(HTREEITEM _item)
 
 			else{
 				AddImageData(hChildItem);
-			}	
+			}
 
 			hChildItem = m_pTreeCtrl->GetNextItem(hChildItem, TVGN_NEXT);
 		}
 	}
+}
+*/
+
+void CImageView::SetImageData()
+{
+	CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
+
+	USES_CONVERSION;
+	char* sz = 0;
+
+	CString strPath, strFullPath, strName;
+	unsigned long pCode=0, cCode = 0;
+	
+	std::vector<_IMGPATHInfo>::iterator iter = pM->GetImageListInfo().begin();
+
+	while (iter != pM->GetImageListInfo().end()){
+		strName = iter->strName;
+		strPath = iter->strPath;
+
+		sz = T2A(strPath);
+		pCode = getHashCode(sz);
+
+		sz = T2A(strName);
+		cCode = getHashCode(sz);
+
+		CSNImage* pimg = new CSNImage;
+
+		strFullPath = strPath + "\\" + strName;
+		pimg->SetName(strFullPath, strPath, strName, pCode, cCode);
+		PushImageDataSet(cCode, pCode, pimg);
+
+		iter++;
+	}
+
+
+
+
+	pM->AddOutputString(_T("Generate thumbnails"));
+	SetTimer(_ADDIMG, 10, NULL);
 }
 
 
@@ -794,7 +847,7 @@ void CImageView::OnTimer(UINT_PTR nIDEvent)
 	}
 
 	if (nIDEvent == _SEARCHIMG){
-		ProcCutNSearch();		
+		 (m_cutImg);		
 	//	ProcCutNSearchBinary();
 
 	}
@@ -802,49 +855,28 @@ void CImageView::OnTimer(UINT_PTR nIDEvent)
 }
 
 
-POINT3D CImageView::GetColor(unsigned long nCode)
+POINT3D CImageView::GetColor(float fvalue)
 {
-	float R, G, B;
-	int i = nCode;
+	int idx = fvalue * 10;
+	if (idx<0)
+		idx = 0;
+	if (idx>9)
+		idx = 9;
 
-	if (i<256)
-	{
-		R = 0; G = (i); B = 255;
-	}
-
-	else if ((i >= 256) && (i<512))
-	{
-		R = 0; G = 255; B = (255 - (i - 256));
-	}
-	else if ((i >= 512) && (i<768))
-	{
-		R = (i - 512); G = 255; B = 0;
-	}
-	else if ((i >= 768) && (i<1024))
-	{
-		R = 255; G = 255 - (i - 768); B = 0;
-	}
-	else if ((i >= 1024) && (i<1280))
-	{
-		R = 255 - (i - 1024); G = 0; B = (i - 512);
-	}
-
-
-	POINT3D vColor;
-	//	mtSetPoint3D(&vColor, R*0.00390625f, G*0.00390625f, B*0.00390625f);
-	mtSetPoint3D(&vColor, R, G, B);
-	return vColor;
+	return m_result_color[idx];
 }
 
 
-void CImageView::ProcCutNSearch()
+void CImageView::ProcCutNSearch(IplImage *pcutImg)
 {
+	float colorScale = 1.0f / (1.0f - m_Threshold);
+
 	CMainFrame* pM = (CMainFrame*)AfxGetMainWnd();
 	int cnt = 0;
 
-	int search_size = m_cutImg->width;
-	if (search_size > m_cutImg->height)
-		search_size = m_cutImg->height;
+	int search_size = pcutImg->width;
+	if (search_size > pcutImg->height)
+		search_size = pcutImg->height;
 
 
 	for (; m_searchCnt < m_vecImageData.size(); m_searchCnt++){
@@ -869,10 +901,10 @@ void CImageView::ProcCutNSearch()
 		//else
 		//	cvCopy(dstImg, gray);
 
-		IplImage *result_img = cvCreateImage(cvSize(gray->width - m_cutImg->width + 1, gray->height - m_cutImg->height + 1),
+		IplImage *result_img = cvCreateImage(cvSize(gray->width - pcutImg->width + 1, gray->height - pcutImg->height + 1),
 			IPL_DEPTH_32F, 1);
 
-		cvMatchTemplate(gray, m_cutImg, result_img, CV_TM_CCOEFF_NORMED);
+		cvMatchTemplate(gray, pcutImg, result_img, CV_TM_CCOEFF_NORMED);
 		//cvShowImage("percentage map", result_img);
 
 		float* d = (float*)result_img->imageData;
@@ -882,12 +914,17 @@ void CImageView::ProcCutNSearch()
 			for (int x = 0; x<result_img->width; x++){
 				float fD = *(d + y*result_img->width + x);
 				if (fD>m_Threshold)	{
-					POINT3D left_top;
-					left_top.x = x + m_cutImg->width*0.5f;
-					left_top.y = y + m_cutImg->height*0.5f;					
-					left_top.z = fD;
+					//POINT3D left_top;
 
-					pImg->AddMatchedPoint(left_top, search_size);
+					_MATCHInfo mInfo;
+
+					mInfo.pos.x = x + pcutImg->width*0.5f;
+					mInfo.pos.y = y + pcutImg->height*0.5f;
+					mInfo.pos.z = 0;
+					mInfo.accuracy = fD;
+					mInfo.color = GetColor(fD*1.2f);
+
+					pImg->AddMatchedPoint(std::move(mInfo), search_size);
 
 				}
 			}
@@ -1265,12 +1302,13 @@ void CImageView::ProcCutNSearchBinary()
 				for (int x = 0; x < result_img->width; x++){
 					float fD = *(d + y*result_img->width + x);
 					if (fD > m_Threshold)	{
-						POINT3D left_top;
-						left_top.x = x + m_cutImg->width*0.5f;
-						left_top.y = y + m_cutImg->height*0.5f;						
-						left_top.z = fD;
+						//POINT3D left_top;
+						_MATCHInfo mInfo;
+						mInfo.pos.x = x + m_cutImg->width*0.5f;
+						mInfo.pos.y = y + m_cutImg->height*0.5f;
+						mInfo.pos.z = fD;
 
-						pImg->AddMatchedPoint(left_top, search_size);
+						pImg->AddMatchedPoint(std::move(mInfo), search_size);
 
 					}
 				}
@@ -1335,7 +1373,7 @@ IplImage* CImageView::ExtractAverTempleteFromResult()
 				IplImage* pTmp = cvCreateImage(cvSize(m_cutImg->width, m_cutImg->height), gray->depth, gray->nChannels);
 
 				for (int i = 0; i < pImg->GetMatchResult()->size(); i++){
-					POINT3D pos = pImg->GetMatchResult()->at(i);
+					POINT3D pos = pImg->GetMatchResult()->at(i).pos;
 					pos.x -= m_cutImg->width*0.5f;
 					pos.y -= m_cutImg->height*0.5f;
 

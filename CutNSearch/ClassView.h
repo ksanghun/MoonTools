@@ -24,7 +24,7 @@ public:
 
 protected:
 	CClassToolBar m_wndToolBar;
-	CViewTree m_wndClassView;
+//	CViewTree m_wndClassView;
 	CImageList m_ClassViewImages;
 	UINT m_nCurrSort;
 

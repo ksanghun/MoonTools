@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include "FileView.h"
-#include "ClassView.h"
+//#include "FileView.h"
+//#include "ClassView.h"
 #include "OutputWnd.h"
 #include "DlgConf.h"
 
@@ -30,8 +30,11 @@ public:
 	void ResetOutputWnd();
 
 	void InitConfituration();
-	CFileView* GetViewFiewCtrl() { return &m_wndFileView; }
+	void GetImgFilePath(CString strPath);
 
+//	CFileView* GetViewFiewCtrl() { return &m_wndFileView; }
+
+	std::vector<_IMGPATHInfo>& GetImageListInfo() { return m_imgFileList; }
 // Implementation
 public:
 	virtual ~CMainFrame();
@@ -45,7 +48,7 @@ protected:  // control bar embedded members
 //	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
-	CFileView         m_wndFileView; 
+//	CFileView         m_wndFileView; 
 //	CClassView        m_wndClassView;
 	COutputWnd        m_wndOutput;
 
@@ -53,6 +56,7 @@ protected:  // control bar embedded members
 	CString			m_strSrcPath;
 	CString			m_strLogPath;
 
+	std::vector<_IMGPATHInfo> m_imgFileList;
 
 // Generated message map functions
 protected:

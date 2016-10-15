@@ -34,8 +34,9 @@ public:
 
 	bool LoadSNImage(CString strPath, CSNImage* pInfo, unsigned short resolution);
 	GLuint LoadSNImage(CString strPath);
-	void SetTreeDragItem(CImageList* pImage, HTREEITEM hItem, CViewTree* pCtrl);
-	void AddImageData(HTREEITEM _item);
+//	void SetTreeDragItem(CImageList* pImage, HTREEITEM hItem, CViewTree* pCtrl);
+//	void AddImageData(HTREEITEM _item);
+	void SetImageData();
 	void PushImageDataSet(unsigned long _code, unsigned long _pcode, CSNImage* pimg);
 	void PrepareRender();
 	void SetIconMode(bool _mode) { m_bIconMode = _mode; };
@@ -112,9 +113,11 @@ private:
 	void ResetIconTextureId();
 	CSNImage* GetSNImageByIndex(unsigned int idx);
 	void GenerateThumbnail();
-	void ProcCutNSearch();
+	void ProcCutNSearch(IplImage *pcutImg);
 	void ProcCutNSearchBinary();
-	POINT3D GetColor(unsigned long nCode);
+	POINT3D GetColor(float fvalue);
+
+	POINT3D m_result_color[10];
 	
 
 

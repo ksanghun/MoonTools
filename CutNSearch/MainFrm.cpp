@@ -6,7 +6,7 @@
 #include "CutNSearch.h"
 
 #include "MainFrm.h"
-#include "ViewTree.h"
+//#include "ViewTree.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -124,8 +124,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	}
 
-	m_wndFileView.EnableDocking(CBRS_ALIGN_ANY);
-	m_wndFileView.ShowPane(FALSE, FALSE, FALSE);
+//	m_wndFileView.EnableDocking(CBRS_ALIGN_ANY);
+//	m_wndFileView.ShowPane(FALSE, FALSE, FALSE);
 //	m_wndClassView.EnableDocking(CBRS_ALIGN_ANY);
 //	DockPane(&m_wndFileView);
 
@@ -183,12 +183,60 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CMFCToolBar::SetBasicCommands(lstBasicCommands);
 	//
 	
-
-
 	InitConfituration();
-	m_wndFileView.FillFileView(m_strSrcPath);
+
+
+
+	GetImgFilePath(m_strSrcPath);
+
+
+
+	//m_wndFileView.FillFileView(m_strSrcPath);
 	return 0;
 }
+
+void CMainFrame::GetImgFilePath(CString strPath)
+{	
+	FILE* fp;
+	fopen_s(&fp, "userdata/imglist.bin", "rb");
+
+	if (fp){
+
+	
+	}
+	else{
+		//int nCount = 0;
+		CString strSubPath;
+		CString strFileName;
+		CFileFind file_find;
+		BOOL bWorking;
+		bWorking = file_find.FindFile(strPath + ("\\*"));
+
+		BOOL isSubDir = false;
+		while (bWorking)
+		{
+			bWorking = file_find.FindNextFile();
+			if (!file_find.IsDots()){
+				
+				if (file_find.IsDirectory()){//directory 				
+					strSubPath = strPath + ("\\") + file_find.GetFileName();
+					GetImgFilePath(strSubPath);
+					//nCount++;
+				}				
+				else{//file 
+					_IMGPATHInfo info;
+					info.strPath = strPath;
+					info.strName = file_find.GetFileName();					
+					m_imgFileList.push_back(std::move(info));
+					//	nCount++;
+				}
+			}		
+		}
+
+		// Save File //
+	}
+}
+
 
 void CMainFrame::InitConfituration()
 {
@@ -197,7 +245,16 @@ void CMainFrame::InitConfituration()
 	GetModuleFileName(nullptr, sPath.GetBuffer(_MAX_PATH + 1), _MAX_PATH);
 	sPath.ReleaseBuffer();
 	CString path = sPath.Left(sPath.ReverseFind(_T('\\')));
-	CString strFle = path + "\\conf.bin";
+	CString strFle = path + "\\userdata\\conf.bin";
+
+
+	// Folder Check================ //
+	CString strfolder = path + "\\userdata";
+	if (PathFileExists(strfolder) == 0){
+		CreateDirectory(strfolder, NULL);
+	}
+	////======================================//
+
 
 
 	// Load Config
@@ -263,14 +320,14 @@ BOOL CMainFrame::CreateDockingWindows()
 	//}
 
 	// Create file view
-	CString strFileView;
-	bNameValid = strFileView.LoadString(IDS_FILE_VIEW);
-	ASSERT(bNameValid);
-	if (!m_wndFileView.Create(strFileView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_FILEVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT| CBRS_FLOAT_MULTI))
-	{
-		TRACE0("Failed to create File View window\n");
-		return FALSE; // failed to create
-	}
+	//CString strFileView;
+	//bNameValid = strFileView.LoadString(IDS_FILE_VIEW);
+	//ASSERT(bNameValid);
+	//if (!m_wndFileView.Create(strFileView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_FILEVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT| CBRS_FLOAT_MULTI))
+	//{
+	//	TRACE0("Failed to create File View window\n");
+	//	return FALSE; // failed to create
+	//}
 
 	// Create output window
 	CString strOutputWnd;
@@ -288,8 +345,8 @@ BOOL CMainFrame::CreateDockingWindows()
 
 void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 {
-	HICON hFileViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_FILE_VIEW_HC : IDI_FILE_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	m_wndFileView.SetIcon(hFileViewIcon, FALSE);
+//	HICON hFileViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_FILE_VIEW_HC : IDI_FILE_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
+//	m_wndFileView.SetIcon(hFileViewIcon, FALSE);
 
 //	HICON hClassViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_CLASS_VIEW_HC : IDI_CLASS_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
 //	m_wndClassView.SetIcon(hClassViewIcon, FALSE);
@@ -501,9 +558,9 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
 	// TODO: Add your specialized code here and/or call the base class
 
-	if (pMsg->message == WM_MOUSEMOVE){
-		m_wndFileView.MouseMoveEnvet();
-	}
+	//if (pMsg->message == WM_MOUSEMOVE){
+	//	m_wndFileView.MouseMoveEnvet();
+	//}
 
 	return CFrameWndEx::PreTranslateMessage(pMsg);
 }

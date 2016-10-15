@@ -24,7 +24,7 @@ public:
 	void DrawImage(float fAlpha);
 	void CSNImage::DrawBMPText();
 
-	bool AddMatchedPoint(POINT3D pos, int search_size);
+	bool AddMatchedPoint(_MATCHInfo info, int search_size);
 
 	GLuint GetTexId() { return texId; };
 	GLuint GetTxTex() { return thTexId; };
@@ -39,7 +39,7 @@ public:
 
 
 	void ClearMatchResult();
-	std::vector<POINT3D>* GetMatchResult() { return &m_matched_pos; };
+	std::vector<_MATCHInfo>* GetMatchResult() { return &m_matched_pos; };
 
 private:
 	CString strPath;
@@ -69,7 +69,7 @@ private:
 	unsigned short nImgHeight;
 
 
-	std::vector<POINT3D> m_matched_pos;
+	std::vector<_MATCHInfo> m_matched_pos;
 
 	float m_fXScale, m_fYScale;
 

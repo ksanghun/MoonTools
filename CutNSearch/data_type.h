@@ -423,4 +423,12 @@ typedef struct _SNIMAGE
 
 
 
+typedef struct _MATCHInfo
+{
+	POINT3D pos;
+	POINT3D color;
+	float accuracy;
+}_MATCHInfo;
+
+
 #pragma pack()

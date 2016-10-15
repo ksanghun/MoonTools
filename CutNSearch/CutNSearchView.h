@@ -37,7 +37,7 @@ class CViewTree;
 
 
 		void AddSNImage(CString str);
-		void SetTreeDragItem(CImageList* pImage, HTREEITEM hItem, CViewTree* pCtrl);
+//		void SetTreeDragItem(CImageList* pImage, HTREEITEM hItem, CViewTree* pCtrl);
 		void RenderImageView();
 		void DoCNSearch(IplImage *ptemp, bool IsKeyword=false);
 		void DoCNSearchForPixelMap(IplImage *ptemp);

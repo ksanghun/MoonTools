@@ -107,7 +107,6 @@ void CFileView::FillFileView(CString strFolder)
 	_strlist filelist;
 	ExtractFolder(strFolder, strFolder, filelist, hRoot);
 
-
 	//pView->SetTreeDragItem(&m_FileViewImages, m_rootItem, &m_wndFileView);
 
 	int a = 0;

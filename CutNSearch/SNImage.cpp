@@ -37,10 +37,10 @@ CSNImage::~CSNImage()
 //	//mtSetPoint3D(&m_vBgColor, r,g,b);
 //}
 
-bool CSNImage::AddMatchedPoint(POINT3D pos, int search_size)
+bool CSNImage::AddMatchedPoint(_MATCHInfo info, int search_size)
 {
-	if (IsDuplicate(pos, search_size) == false){
-		m_matched_pos.push_back(pos);
+	if (IsDuplicate(info.pos, search_size) == false){
+		m_matched_pos.push_back(info);
 		return true;
 	}
 	return false;
@@ -257,7 +257,8 @@ void CSNImage::DrawThumbNail(float fAlpha)
 			glTranslatef(-nImgWidth*0.5f, -nImgHeight*0.5f, 0.0f);
 			glBegin(GL_POINTS);
 			for (int i = 0; i < m_matched_pos.size(); i++){
-				glVertex3f(m_matched_pos[i].x, nImgHeight - m_matched_pos[i].y, 0.0f);
+				glColor4f(m_matched_pos[i].color.x, m_matched_pos[i].color.y, m_matched_pos[i].color.z, 0.7f);
+				glVertex3f(m_matched_pos[i].pos.x, nImgHeight - m_matched_pos[i].pos.y, 0.0f);
 			}
 			glEnd();
 		glPopMatrix();
@@ -293,7 +294,7 @@ bool CSNImage::IsDuplicate(POINT3D pos, int search_size)
 {
 	bool IsDup = false;
 	for (int i = 0; i < m_matched_pos.size(); i++){
-		float fDist = mtDistance(pos, m_matched_pos[i]);
+		float fDist = mtDistance(pos, m_matched_pos[i].pos);
 		if (fDist < search_size){
 			IsDup = true;
 			break;
